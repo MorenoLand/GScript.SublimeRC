@@ -1,0 +1,39 @@
+{
+    // Base folder where downloaded and edited files are stored.
+    // Original copies are saved under: scripts_folder/SERVERNAME/original/
+    // Edited copies are saved under: scripts_folder/SERVERNAME/modified/
+    "scripts_folder": "C:/SublimeRC",
+
+    // Default account fallback used by listservers that do not override it.
+    "account": "",
+    "password": "",
+    "nickname": "",
+
+    // Primary listserver.
+    "listserver_name": "Local",
+    "listserver_host": "127.0.0.1",
+    "listserver_port": 14922,
+    "listserver_account": "",
+    "listserver_nick": "",
+    "listserver_password": "",
+
+    // Optional extra listservers. Add more by continuing the number suffix.
+    "listserver_name1": "Example",
+    "listserver_host1": "example.com",
+    "listserver_port1": 14922,
+    "listserver_account1": "",
+    "listserver_nick1": "",
+    "listserver_password1": "",
+
+    // Compiler output location:
+    // "tab" routes compiler output into the NC tab.
+    // "panel" routes compiler output into a bottom output panel.
+    "compiler_output_location": "tab",
+    "compiler_panel_auto_show": true,
+
+    // Route actual NPC-server packets/messages to a separate NC tab instead of RC Chat.
+    "separate_nc_messages": false,
+
+    // Show the terminal/output area automatically when saving NPCs, weapons, or classes.
+    "show_terminal_on_script_save": true
+}

@@ -1,0 +1,18 @@
+[
+  {
+    "button": "button1",
+    "count": 1,
+    "modifiers": ["ctrl"],
+    "press_command": "drag_select",
+    "command": "rc_goto_definition",
+    "selector": "source.gscript"
+  },
+  {
+    "button": "button1",
+    "count": 1,
+    "modifiers": ["ctrl"],
+    "press_command": "drag_select",
+    "command": "rc_open_pm_at_point",
+    "selector": "text.terminal"
+  }
+]

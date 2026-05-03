@@ -1,0 +1,46 @@
+{
+  "globals": {
+    "background": "#13141A",
+    "foreground": "#faf6f3",
+    "caret": "#ffb7c5",
+    "line_highlight": "#171922",
+    "gutter": "#13141A",
+    "gutter_foreground": "#ffb7c5",
+    "selection": "#2b3140",
+    "popup_css": "html, body { background-color: #242936; color: #f5f5f5; }"
+  },
+  "rules": [
+    {
+      "scope": "keyword.control.gscript, storage.type.gscript, storage.modifier.gscript, keyword.other.gscript",
+      "foreground": "#ffad66"
+    },
+    {
+      "scope": "entity.name.function.gscript",
+      "foreground": "#ffd173"
+    },
+    {
+      "scope": "variable.language.gscript, variable.parameter.gscript",
+      "foreground": "#73d0ff"
+    },
+    {
+      "scope": "string.quoted.single.gscript, string.quoted.double.gscript",
+      "foreground": "#aad94c"
+    },
+    {
+      "scope": "constant.numeric.gscript",
+      "foreground": "#ffcc66"
+    },
+    {
+      "scope": "constant.language.gscript",
+      "foreground": "#d2a6ff"
+    },
+    {
+      "scope": "comment.line.double-slash.gscript, comment.block.gscript",
+      "foreground": "#6c7480"
+    },
+    {
+      "scope": "keyword.operator.gscript, keyword.operator.array.gscript, punctuation.gscript",
+      "foreground": "#f29e74"
+    }
+  ]
+}

@@ -1,0 +1,146 @@
+[
+    {
+        "caption": "RC: 🛠 Update LSP Definitions",
+        "command": "rc_update_lsp_definitions"
+    },
+    {
+        "caption": "RC: 🔄 Refresh Servers",
+        "command": "rc_refresh_servers"
+    },
+    {
+        "caption": "RC: 🌎 Connect to GServer",
+        "command": "rc_connect_server"
+    },
+    {
+        "caption": "RC: 🔑 Set Credentials",
+        "command": "rc_set_credentials"
+    },
+    {
+        "caption": "RC: 🏷 Set Nickname",
+        "command": "rc_set_nickname"
+    },
+    {
+        "caption": "RC: 🌐 Set Listserver",
+        "command": "rc_set_listserver"
+    },
+    {
+        "caption": "RC: 📁 Set Scripts Folder",
+        "command": "rc_set_scripts_folder"
+    },
+    {
+        "caption": "RC: 🗨 Show Chat",
+        "command": "rc_show_chat"
+    },
+    {
+        "caption": "RC: 🧬 Show NC",
+        "command": "rc_show_nc"
+    },
+    {
+        "caption": "RC: 📨 Chat",
+        "command": "rc_send_command"
+    },
+    {
+        "caption": "RC: 📨 Open PM",
+        "command": "rc_open_pm"
+    },
+    {
+        "caption": "RC: 📨 Open All PMs",
+        "command": "rc_open_all_pms"
+    },
+    {
+        "caption": "RC: 💬 IRC Tabs",
+        "command": "rc_irc_tabs"
+    },
+    {
+        "caption": "RC: 💌 Reply PM",
+        "command": "rc_reply_pm"
+    },
+    {
+        "caption": "RC: 🎮 Players",
+        "command": "rc_show_players"
+    },
+    {
+        "caption": "RC: 🤖 NPCs",
+        "command": "rc_show_npcs"
+    },
+    {
+        "caption": "RC: 🧿 Local NPCs",
+        "command": "rc_local_npcs"
+    },
+    {
+        "caption": "RC: 🧩 Classes",
+        "command": "rc_show_classes"
+    },
+    {
+        "caption": "RC: 🗡 Weapons",
+        "command": "rc_show_weapons"
+    },
+    {
+        "caption": "RC: 📣 Global Chat",
+        "command": "rc_show_global_chat"
+    },
+    {
+        "caption": "RC: 🛠 Server Options",
+        "command": "rc_edit_server_options"
+    },
+    {
+        "caption": "RC: 🚩 Server Flags",
+        "command": "rc_edit_server_flags"
+    },
+    {
+        "caption": "RC: 🗂 Folder Config",
+        "command": "rc_edit_folder_config"
+    },
+    {
+        "caption": "RC: 📂 File Browser",
+        "command": "rc_file_browser"
+    },
+    {
+        "caption": "RC: ⬆ Upload File",
+        "command": "rc_upload_file"
+    },
+    {
+        "caption": "RC: 🆕 New NPC",
+        "command": "rc_create_npc_on_server"
+    },
+    {
+        "caption": "RC: 🆕 New Weapon",
+        "command": "rc_new_weapon"
+    },
+    {
+        "caption": "RC: 🆕 New Class",
+        "command": "rc_new_class"
+    },
+    {
+        "caption": "RC: 🔎 View NPC Attributes",
+        "command": "rc_view_npc_attributes"
+    },
+    {
+        "caption": "RC: 🔌 Disconnect",
+        "command": "rc_disconnect"
+    },
+    {
+        "caption": "RC: 🧬 Connect to NC",
+        "command": "rc_connect_nc"
+    },
+    {
+        "caption": "RC: 🔌 Disconnect from NC",
+        "command": "rc_disconnect_nc"
+    },
+    {
+        "caption": "RC: 📢 Admin Message All",
+        "command": "rc_admin_message_all"
+    },
+    {
+        "caption": "RC: 📣 Toalls",
+        "command": "rc_show_toalls"
+    },
+    {
+        "caption": "RC: 📬 Mass PM",
+        "command": "rc_mass_pm"
+    },
+    {
+        "caption": "RC: 🪪 Open Profile",
+        "command": "rc_open_profile"
+    }
+]

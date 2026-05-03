@@ -1,0 +1,24 @@
+%YAML 1.2
+---
+name: RC IRC
+scope: text.rc-irc
+contexts:
+  main:
+    - match: '^(IRC Channel )(.*)$'
+      captures:
+        1: constant.language
+        2: entity.name.function
+    - match: '^(\[[0-9]{1,2}:[0-9]{2}(?:am|pm)\]) (<)([^>]+)(>)'
+      captures:
+        1: constant.language
+        2: punctuation.definition
+        3: entity.name.function
+        4: punctuation.definition
+    - match: '^(\[[0-9]{1,2}:[0-9]{2}(?:am|pm)\]) (\*) (.*)$'
+      captures:
+        1: constant.language
+        2: keyword
+        3: string.unquoted
+    - match: '^(> )'
+      captures:
+        1: constant.language

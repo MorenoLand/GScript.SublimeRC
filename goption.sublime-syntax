@@ -1,0 +1,117 @@
+%YAML 1.2
+---
+name: goption
+file_extensions:
+  - goption
+  - goption
+scope: source.goption
+
+contexts:
+  main:
+    - include: profile-header
+    - include: item-list-sections
+    - include: section-headers
+    - include: comments
+    - include: file-types
+    - include: key-values
+    - include: folder-rights
+    - include: weapon-names
+    - include: option-lines
+    - include: inline-brackets
+    - include: commas
+    - include: numbers
+    - include: account-names
+
+  section-headers:
+    - match: ^\s*(\[)\s*([^\]]+?)\s*(\])
+      captures:
+        1: constant.language.goption
+        2: entity.name.section.goption
+        3: constant.language.goption
+
+  item-list-sections:
+    - match: ^\s*(\[)\s*(Weapons|Chests)\s*(\])
+      captures:
+        1: constant.language.goption
+        2: entity.name.section.goption
+        3: constant.language.goption
+      push: item-list-body
+
+  item-list-body:
+    - meta_scope: meta.list.goption
+    - match: ^\s*(?=\[[^\]]+\])
+      pop: true
+    - match: ^\s*#.*$
+      scope: comment.line.hash.goption
+    - match: ^\s*(\S.*)$
+      captures:
+        1: string.other.list-item.goption
+
+  comments:
+    - match: ^\s*#.*$
+      scope: comment.line.hash.goption
+
+  option-lines:
+    - match: '^\s*([\w.]+)(=)(.*)$'
+      captures:
+        1: variable.parameter.goption
+        2: keyword.operator.assignment.goption
+        3: string.unquoted.goption.option-value
+
+  inline-brackets:
+    - match: '(\[)([^\]]+)(\])'
+      captures:
+        1: constant.language.goption
+        2: constant.language.goption
+        3: constant.language.goption
+
+  commas:
+    - match: ','
+      scope: punctuation.separator.goption
+
+  file-types:
+    - match: '^\s*(file|level|body|shield|sword|head|gmap)\s+(.+)$'
+      captures:
+        1: variable.parameter.goption
+        2: string.other.filepath.goption
+
+  profile-header:
+    - match: '^(Profile for)\s+(.+)$'
+      captures:
+        1: keyword.control.goption
+        2: entity.name.class.goption
+
+  weapon-names:
+    - match: '^([-*])(.+)$'
+      captures:
+        1: keyword.operator.goption
+        2: constant.other.weapon.goption
+
+  account-names:
+    - match: '(?<=[=,])\s*([A-Za-z_][A-Za-z0-9_]*)'
+      captures:
+        1: entity.name.class.goption
+
+  key-values:
+    - match: '^([^:#\[]+)(:)\s+(true|false)\s*$'
+      captures:
+        1: variable.parameter.goption
+        2: punctuation.separator.goption
+        3: constant.language.boolean.goption
+    - match: '^([^:#\[]+)(:)\s*(.*)$'
+      captures:
+        1: variable.parameter.goption
+        2: punctuation.separator.goption
+        3: string.unquoted.goption
+
+  folder-rights:
+    - match: '\b(r |rw )([^\s/]+)((?:/[^\s/]+)*)(/\*)?'
+      captures:
+        1: constant.other.rights.goption
+        2: string.other.filepath.goption.folder
+        3: string.other.filepath.goption.folder
+        4: keyword.operator.wildcard.goption
+
+  numbers:
+    - match: '\b\d+\b'
+      scope: constant.numeric.goption

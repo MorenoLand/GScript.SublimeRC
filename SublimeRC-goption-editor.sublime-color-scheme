@@ -1,0 +1,71 @@
+{
+  "globals": {
+    "background": "#13141A",
+    "foreground": "#faf6f3",
+    "caret": "#ffb7c5",
+    "line_highlight": "#171922",
+    "gutter": "#13141A",
+    "gutter_foreground": "#ffb7c5",
+    "selection": "#2b3140",
+    "popup_css": "html, body { background-color: #242936; color: #f5f5f5; }"
+  },
+  "rules": [
+    {
+      "scope": "constant.language.goption, keyword.control.goption, keyword.operator.goption",
+      "foreground": "#ff8fb3"
+    },
+    {
+      "scope": "entity.name.section.goption",
+      "foreground": "#ffd166"
+    },
+    {
+      "scope": "keyword.operator.assignment.goption",
+      "foreground": "#ffb7c5",
+      "background": "#13141A"
+    },
+    {
+      "scope": "variable.parameter.goption",
+      "foreground": "#7cc7ff"
+    },
+    {
+      "scope": "entity.name.class.goption, constant.other.weapon.goption, entity.name.filename.goption",
+      "foreground": "#ffb7c5"
+    },
+    {
+      "scope": "string.unquoted.goption, string.other.filepath.goption",
+      "foreground": "#faf6f3"
+    },
+    {
+      "scope": "string.other.list-item.goption",
+      "foreground": "#d7e8ff"
+    },
+    {
+      "scope": "string.unquoted.goption.option-value",
+      "foreground": "#ffd700"
+    },
+    {
+      "scope": "constant.numeric.goption",
+      "foreground": "#ffd700"
+    },
+    {
+      "scope": "constant.language.boolean.goption",
+      "foreground": "#ffd166"
+    },
+    {
+      "scope": "constant.other.rights.goption",
+      "foreground": "#5fafff"
+    },
+    {
+      "scope": "string.other.filepath.goption.folder",
+      "foreground": "#faf6f3"
+    },
+    {
+      "scope": "comment.line.hash.goption",
+      "foreground": "#8f98aa"
+    },
+    {
+      "scope": "punctuation.separator.goption",
+      "foreground": "#ff8fb3"
+    }
+  ]
+}

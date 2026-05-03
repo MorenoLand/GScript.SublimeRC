@@ -1,0 +1,106 @@
+{
+  "globals": {
+    "background": "#13141A",
+    "foreground": "#faf6f3",
+    "caret": "#ffb7c5",
+    "line_highlight": "#13141A",
+    "gutter": "#13141A",
+    "gutter_foreground": "#ffb7c5"
+  },
+  "rules": [
+    {
+      "scope": "keyword",
+      "foreground": "#ff00ff",
+      "background": "#2a2a3a"
+    },
+    {
+      "scope": "entity.name.function",
+      "foreground": "#ffb7c5"
+    },
+    {
+      "scope": "constant.language",
+      "foreground": "#ffb7c5"
+    },
+    {
+      "scope": "alert.red",
+      "foreground": "#ff5f5f"
+    },
+    {
+      "scope": "alert.yellow",
+      "foreground": "#ffd700"
+    },
+    {
+      "scope": "alert.blue",
+      "foreground": "#5fafff"
+    },
+    {
+      "scope": "alert.green",
+      "foreground": "#5fdf5f"
+    },
+    {
+      "scope": "constant.language.goption, keyword.control.goption, keyword.operator.goption",
+      "foreground": "#ffb7c5"
+    },
+    {
+      "scope": "keyword.operator.assignment.goption",
+      "foreground": "#ffb7c5",
+      "background": "#13141A"
+    },
+    {
+      "scope": "variable.parameter.goption",
+      "foreground": "#5fafff"
+    },
+    {
+      "scope": "entity.name.class.goption, constant.other.weapon.goption, entity.name.filename.goption",
+      "foreground": "#ffb7c5"
+    },
+    {
+      "scope": "string.unquoted.goption, string.other.filepath.goption",
+      "foreground": "#faf6f3"
+    },
+    {
+      "scope": "string.unquoted.goption.option-value",
+      "foreground": "#ffd700"
+    },
+    {
+      "scope": "constant.numeric.goption",
+      "foreground": "#ffd700"
+    },
+    {
+      "scope": "constant.language.boolean.goption, constant.other.rights.goption",
+      "foreground": "#5fafff"
+    },
+    {
+      "scope": "comment.line.hash.goption",
+      "foreground": "#8f98aa"
+    },
+    {
+      "scope": "punctuation.separator.goption",
+      "foreground": "#ffb7c5"
+    },
+    {
+      "scope": "keyword.control.gscript, storage.type.gscript, storage.modifier.gscript, keyword.other.gscript",
+      "foreground": "#ffb7c5"
+    },
+    {
+      "scope": "entity.name.function.gscript, variable.language.gscript, variable.parameter.gscript",
+      "foreground": "#5fafff"
+    },
+    {
+      "scope": "string.quoted.single.gscript, string.quoted.double.gscript",
+      "foreground": "#ffd700"
+    },
+    {
+      "scope": "constant.numeric.gscript, constant.language.gscript",
+      "foreground": "#ffd700"
+    },
+    {
+      "scope": "comment.line.double-slash.gscript, comment.block.gscript",
+      "foreground": "#8f98aa"
+    },
+    {
+      "scope": "keyword.operator.gscript, keyword.operator.array.gscript, punctuation.gscript",
+      "foreground": "#ffb7c5"
+    }
+  ]
+}

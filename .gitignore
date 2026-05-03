@@ -1,0 +1,15 @@
+*.pyc
+__pycache__/
+*.sublime-workspace
+package-metadata.json
+.DS_Store
+*.sublime-settings
+!SublimeRC.example.sublime-settings
+!gscript.sublime-settings
+*.bak
+.vs/
+*old*
+*.dll
+api_definitions.json
+_main.grc*
+*.sublime-package

@@ -1,0 +1,89 @@
+%YAML 1.2
+---
+# http://www.sublimetext.com/docs/syntax.html
+name: gscript
+file_extensions:
+  - gs2
+  - gs
+  - gscript
+  - gscript2
+scope: source.gscript
+contexts:
+  main:
+    - include: single-quote-strings
+    - include: double-quote-strings
+    - include: line-comments
+    - include: block-comments
+    - include: numeric
+    - include: variables
+    - include: keywords
+    - include: functions
+    - include: operators
+    - include: array-operators
+    - include: punctuators
+  single-quote-strings:
+    - match: "'"
+      scope: punctuation.definition.string.begin.gscript
+      push:
+        - meta_scope: string.quoted.single.gscript
+        - match: $
+          pop: true
+        - match: "'"
+          scope: punctuation.definition.string.end.gscript
+          pop: true
+  double-quote-strings:
+    - match: '"'
+      scope: punctuation.definition.string.begin.gscript
+      push:
+        - meta_scope: string.quoted.double.gscript
+        - match: '"'
+          scope: punctuation.definition.string.end.gscript
+          pop: true
+  line-comments:
+    - match: //
+      scope: punctuation.definition.comment.gscript
+      push:
+        - meta_scope: comment.line.double-slash.gscript
+        - match: $
+          pop: true
+  block-comments:
+    - match: /\*
+      scope: punctuation.definition.comment.begin.gscript
+      push:
+        - meta_scope: comment.block.gscript
+        - match: \*/
+          scope: punctuation.definition.comment.end.gscript
+          pop: true
+  punctuators:
+    - match: '[{}();:,.]'
+      scope: punctuation.gscript
+  operators:
+    - match: '[-~^@/%|=+*!?&<>]'
+      scope: keyword.operator.gscript
+  array-operators:
+    - match: '\[|\]'
+      scope: keyword.operator.array.gscript
+  numeric:
+    - match: '\b([0-9]+|0[xX][0-9a-fA-F]+)[Ll]?\b|\b(([0-9]+[Ee][-]?[0-9]+|([0-9]*\.[0-9]+|[0-9]+\.)([Ee][-]?[0-9]+)?)[fFdD]?|[0-9]+[FfDd])'
+      scope: constant.numeric.gscript
+  variables:
+    - match: '\$[a-zA-Z_][a-zA-Z0-9_]*(?:::[a-zA-Z_][a-zA-Z0-9_]*)*'
+      scope: variable.parameter.gscript
+  keywords:
+    - match: \b(class|extends|implements|import|instanceof|interface|native|package|volatile|throws)\b
+      scope: storage.type.gscript
+    - match: \b(break|case|continue|default|do|else|elseif|for|function|if|in|return|switch|while|with|xor)\b
+      scope: keyword.control.gscript
+    - match: \b(public|const|enum)\b
+      scope: storage.modifier.gscript
+    - match: \b(new|datablock)\b
+      scope: keyword.other.gscript
+    - match: \b(?i:true|false|nil|null|NULL|pi)\b
+      scope: constant.language.gscript
+    - match: \b(name)\b
+      scope: entity.name.class.gscript
+    - match: \b(?i:this|thiso|temp|server|serverr|client|clientr|player)\b
+      scope: variable.language.gscript
+  functions:
+    - match: '\b([a-zA-Z_][a-zA-Z0-9_]*)(?=\()'
+      scope: entity.name.function.gscript

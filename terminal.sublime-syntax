@@ -1,0 +1,41 @@
+%YAML 1.2
+---
+name: Terminal
+scope: text.terminal
+contexts:
+  main:
+    - match: '^(\[[^\]]+\] Debug: )(.+)$'
+      captures:
+        1: keyword
+        2: keyword
+    - match: '^(\[[^\]]+\] Debug:)$'
+      captures:
+        1: keyword
+    - match: '^(\[[^\]]+\]) ⚠ ALERT (.*)'
+      captures:
+        1: constant.language
+        2: alert.red
+    - match: '^(\[[^\]]+\]) 🔔 PRIORITY (.*)'
+      captures:
+        1: constant.language
+        2: alert.yellow
+    - match: '^(\[[^\]]+\]) 💬 NOTICE (.*)'
+      captures:
+        1: constant.language
+        2: alert.blue
+    - match: '^(\[[^\]]+\]) ℹ️ INFO (.*)'
+      captures:
+        1: constant.language
+        2: alert.green
+    - match: '^(\[[^\]]+\]) ([^:]+)(?<!pc)(:)'
+      captures:
+        1: constant.language
+        2: entity.name.function
+        3: entity.name.function
+    - match: '^(\[[^\]]+\]) (pc:\d+)'
+      captures:
+        1: constant.language
+        2: constant.numeric
+    - match: '^(\[[^\]]+\])'
+      captures:
+        1: constant.language

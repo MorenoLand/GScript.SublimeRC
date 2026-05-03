@@ -1,0 +1,27 @@
+%YAML 1.2
+---
+name: RC List
+scope: text.rc-list
+contexts:
+  main:
+    - match: '^(Staff Activity|Ban History|Local NPCs(?: - .*)?)( for )?(.*)$'
+      captures:
+        1: constant.language
+        2: constant.language
+        3: entity.name.function
+    - match: '^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})(.*)$'
+      captures:
+        1: constant.language
+        2: text.rc-list
+    - match: '^\s+(local ban|local unban|global ban|global unban|computer ban|computer unban|upload bigfile|upload|delete|rename|set|reset|open|close)(.*)$'
+      captures:
+        1: alert.blue
+        2: text.rc-list
+    - match: '^\s*(Banned for|Reason|Ban type|Account|Computer ID|NPC-Placeholder|Variables dump from|Attributes)(:.*)$'
+      captures:
+        1: constant.language
+        2: text.rc-list
+    - match: '^([^:]+)(:)'
+      captures:
+        1: entity.name.function
+        2: constant.language
