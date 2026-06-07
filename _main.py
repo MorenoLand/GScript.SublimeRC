@@ -652,7 +652,7 @@ class GPlugin:
         "PLO_RC_FILEBROWSER_MESSAGE": 67, "PLO_LARGEFILESTART": 68, "PLO_LARGEFILEEND": 69, "PLO_RC_ACCOUNTLISTGET": 70,
         "PLO_RC_PLAYERPROPS": 71, "PLO_RC_PLAYERPROPSGET": 72, "PLO_RC_ACCOUNTGET": 73, "PLO_RC_CHAT": 74, "PLO_PROFILE": 75,
         "PLO_RC_SERVEROPTIONSGET": 76, "PLO_RC_FOLDERCONFIGGET": 77, "PLO_NC_CONTROL": 78, "PLO_NPCSERVERADDR": 79, "PLO_NC_LEVELLIST": 80,
-        "PLO_SERVERTEXT": 82, "PLO_EDITION_PACKET": 16, "PLO_RC_LOGIN": 25, "PLO_BOARDPACKET": 37, "PLO_SVI_SERVERINFO": 47,
+        "PLO_SERVERTEXT": 82, "PLO_EDITION_PACKET": 16, "PLO_RC_LOGIN": 25, "PLO_PRIVATEMESSAGE": 37, "PLO_BOARDPACKET": 101, "PLO_SVI_SERVERINFO": 47,
         "PLO_LARGEFILESIZE": 84, "PLO_FILE": 102, "PLO_NC_NPCATTRIBUTES": 103,
         "PLO_RC_MAXUPLOADFILESIZE": 103, "PLO_NC_NPCADD": 158,
         "PLO_NC_NPCDELETE": 159, "PLO_NC_NPCSCRIPT": 160, "PLO_NC_NPCFLAGS": 161, "PLO_NC_CLASSGET": 162,
@@ -3277,6 +3277,7 @@ class GPlugin:
     @classmethod
     def sendMassPm(cls, player_ids, message):
         if cls.authenticated:
+            player_ids = player_ids[:0x6fff]
             num_players_high = (len(player_ids) >> 7) + 32
             num_players_low = (len(player_ids) & 0x7F) + 32
             payload = bytearray([num_players_high, num_players_low])
@@ -3285,7 +3286,7 @@ class GPlugin:
                 low_byte = (player_id & 0x7F) + 32
                 payload.extend([high_byte, low_byte])
             payload.extend(gtokenize(message).encode('latin-1'))
-            cls.sendPacket(cls.RC_TO_SERVER["PLI_RC_CHAT"], payload)
+            cls.sendPacket(cls.RC_TO_SERVER["PLI_PRIVATEMESSAGE"], payload)
             cls.log("Sent mass PM to {} player(s): {}".format(len(player_ids), message))
         else: cls.logNotAuthenticated()
 
@@ -4598,7 +4599,7 @@ class GPlugin:
                 world_time = (b0 << 21) | (b1 << 14) | (b2 << 7) | b3
                 if not cls.ignore_world_time_debug:
                     cls.log("NEWWORLDTIME: {}".format(world_time), debug_only=True)
-        elif packet_id == cls.SERVER_TO_RC["PLO_BOARDPACKET"]:
+        elif packet_id == cls.SERVER_TO_RC["PLO_PRIVATEMESSAGE"]:
             if len(payload) >= 2:
                 player_id = ((payload[0] - 32) << 7) + (payload[1] - 32)
                 comma_pos = payload.find(ord(','))
@@ -6938,10 +6939,9 @@ class RcMassPmCommand(sublime_plugin.WindowCommand):
 
     def onMessage(self, message):
         if message:
-            rc_players = [p for p in GPlugin.players if not p.get('server') and not p.get('external')]
-            player_ids = [p['id'] for p in rc_players]
+            player_ids = [p['id'] for p in GPlugin.players if p.get('id') is not None]
             GPlugin.sendMassPm(player_ids, message)
-            sublime.status_message("Sent mass PM to {} RC players".format(len(player_ids)))
+            sublime.status_message("Sent mass PM to {} players".format(len(player_ids)))
 
 class RcOpenProfileCommand(sublime_plugin.WindowCommand):
     def run(self):
