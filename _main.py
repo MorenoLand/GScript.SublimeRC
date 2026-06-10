@@ -1,6 +1,5 @@
 import sublime
 import sublime_plugin
-import socket
 import threading
 import time
 import struct
@@ -10,6 +9,9 @@ import os
 import re
 import csv
 import platform
+import hashlib
+import ctypes
+import socket
 from urllib.parse import quote
 
 SERVERS = []
@@ -53,33 +55,121 @@ def urlEncodeFilename(filename):
     safe_chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_.'
     return ''.join(char if char in safe_chars else '%{:02X}'.format(ord(char)) for char in filename)
 
-def stringHashcode(s):
-    h = 0
-    for char in s:
-        h = (31 * h + ord(char)) & 0xFFFFFFFF
-    return h if not (h & 0x80000000) else -((h ^ 0xFFFFFFFF) + 1)
-
-def computerCode(computer_hash):
-    result = []
-    for _ in range(32):
-        result.append("0123456789ABCDEF"[abs(computer_hash % 16)])
-        computer_hash *= 31
-    return ''.join(result)
-
 def getScriptsFolder():
     settings = sublime.load_settings("SublimeRC.sublime-settings")
     default_folder = os.path.join(os.path.expanduser("~"), "SublimeRC") if platform.system() != "Windows" else "C:/SublimeRC"
     folder = settings.get("scripts_folder", default_folder)
     return os.path.normpath(folder)
 
-def generatePcid(account):
+def md5RevHex(data):
+    if not data:
+        return ""
+    digest = hashlib.md5(bytes(data or b"")).digest()
+    hexchars = "0123456789abcdef"
+    return ''.join(hexchars[b & 0x0f] + hexchars[(b >> 4) & 0x0f] for b in digest)
+
+def getWindowsIDBytes():
+    if platform.system() != "Windows":
+        return b""
     try:
-        import urllib.request
-        ip_hash = stringHashcode(urllib.request.urlopen('https://api.ipify.org', timeout=2).read().decode('utf-8'))
+        import winreg
+        paths = (
+            r"Software\Microsoft\Windows\CurrentVersion",
+            r"Software\Microsoft\Windows NT\CurrentVersion",
+        )
+        for path in paths:
+            try:
+                with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, path) as key:
+                    value, _ = winreg.QueryValueEx(key, "DigitalProductId")
+                    if value:
+                        return bytes(value)
+            except OSError:
+                pass
     except:
-        try: ip_hash = stringHashcode(socket.gethostbyname(socket.gethostname()) + socket.gethostname())
-        except: ip_hash = 0
-    return computerCode(ip_hash + stringHashcode(account))
+        pass
+    return b""
+
+def getNetworkIDBytes():
+    if platform.system() != "Windows":
+        return b""
+    try:
+        class IP_ADDR_STRING(ctypes.Structure):
+            pass
+        IP_ADDR_STRING._fields_ = [
+            ("Next", ctypes.POINTER(IP_ADDR_STRING)),
+            ("IpAddress", ctypes.c_char * 16),
+            ("IpMask", ctypes.c_char * 16),
+            ("Context", ctypes.c_ulong),
+        ]
+        class IP_ADAPTER_INFO(ctypes.Structure):
+            pass
+        IP_ADAPTER_INFO._fields_ = [
+            ("Next", ctypes.POINTER(IP_ADAPTER_INFO)),
+            ("ComboIndex", ctypes.c_ulong),
+            ("AdapterName", ctypes.c_char * 260),
+            ("Description", ctypes.c_char * 132),
+            ("AddressLength", ctypes.c_uint),
+            ("Address", ctypes.c_ubyte * 8),
+            ("Index", ctypes.c_ulong),
+            ("Type", ctypes.c_uint),
+            ("DhcpEnabled", ctypes.c_uint),
+            ("CurrentIpAddress", ctypes.POINTER(IP_ADDR_STRING)),
+            ("IpAddressList", IP_ADDR_STRING),
+            ("GatewayList", IP_ADDR_STRING),
+            ("DhcpServer", IP_ADDR_STRING),
+            ("HaveWins", ctypes.c_bool),
+            ("PrimaryWinsServer", IP_ADDR_STRING),
+            ("SecondaryWinsServer", IP_ADDR_STRING),
+            ("LeaseObtained", ctypes.c_long),
+            ("LeaseExpires", ctypes.c_long),
+        ]
+        iphlpapi = ctypes.WinDLL("iphlpapi")
+        size = ctypes.c_ulong(0)
+        if iphlpapi.GetAdaptersInfo(None, ctypes.byref(size)) != 111 or size.value <= 0:
+            return b""
+        buf = ctypes.create_string_buffer(size.value)
+        if iphlpapi.GetAdaptersInfo(ctypes.cast(buf, ctypes.POINTER(IP_ADAPTER_INFO)), ctypes.byref(size)) != 0:
+            return b""
+        adapter = ctypes.cast(buf, ctypes.POINTER(IP_ADAPTER_INFO))
+        while adapter:
+            info = adapter.contents
+            if info.AddressLength >= 6:
+                ip = info.IpAddressList.IpAddress.decode("ascii", errors="ignore").strip("\x00")
+                if ip and ip not in ("0", "0.0.0.0", "127.0.0.1"):
+                    return bytes(info.Address[:6])
+            adapter = info.Next
+    except:
+        pass
+    return b""
+
+def getHarddiskIDBytes():
+    if platform.system() != "Windows":
+        return b""
+    try:
+        serial = ctypes.c_ulong(0)
+        ok = ctypes.windll.kernel32.GetVolumeInformationW(
+            ctypes.c_wchar_p("C:\\"),
+            None,
+            0,
+            ctypes.byref(serial),
+            None,
+            None,
+            None,
+            0
+        )
+        if ok:
+            return int(serial.value).to_bytes(4, "little", signed=False)
+    except:
+        pass
+    return b""
+
+def generatePcid(account=None):
+    return gtokenize("\n".join([
+        "win",
+        md5RevHex(getWindowsIDBytes()),
+        md5RevHex(getNetworkIDBytes()),
+        md5RevHex(getHarddiskIDBytes()),
+    ]))
 
 class ListServerScrambler:
     def __init__(self, seed):
@@ -522,6 +612,8 @@ class GPlugin:
     pending_player_attrs_request = None
     pending_player_comments_request = None
     pending_player_profile_request = None
+    account_list = []
+    account_list_callback = None
     player_rights = {}
     player_attributes = {}
     player_comments = {}
@@ -1467,11 +1559,10 @@ class GPlugin:
         try:
             account, password = getCredentials(cls)
             pcid = generatePcid(account)
-            os_prefix = "win" if platform.system() == "Windows" else "mac"
             login_payload = "vGSERV025"
             login_payload += get1PlusTextNetString(account)
             login_payload += get1PlusTextNetString(password)
-            login_payload += '{},{},{},""'.format(os_prefix, pcid, pcid)
+            login_payload += pcid
             packet = cls.protocol.sendPacket(cls.socket_connection, 6, login_payload.encode('latin-1'))
             cls.protocol.setEncryptionKey(0x56)
         except Exception as e: cls.log("Login failed: " + str(e))
@@ -1592,6 +1683,18 @@ class GPlugin:
             cls.sendPacket(cls.RC_TO_SERVER["PLI_RC_ACCOUNTGET"], payload)
             cls.pending_account_request = account
             cls.log("Requesting account data for: " + account, debug_only=True)
+
+    @classmethod
+    def requestAccountList(cls, account_filter, conditions, callback=None):
+        if cls.authenticated:
+            payload = bytearray()
+            payload.extend(writeRcLenString(str(account_filter or "").strip()))
+            payload.extend(writeRcLenString(str(conditions or "").strip()))
+            cls.account_list_callback = callback
+            cls.sendPacket(cls.RC_TO_SERVER["PLI_RC_ACCOUNTLISTGET"], payload)
+            cls.log("Requesting accounts: account='{}', conditions='{}'".format(account_filter or "", conditions or ""), debug_only=True)
+            return True
+        return False
     
     @classmethod
     def requestPlayerComments(cls, account):
@@ -2862,24 +2965,36 @@ class GPlugin:
     @classmethod
     def uploadAccount(cls, account, account_data):
         if cls.authenticated:
-            tokenized = gtokenize(','.join([
-                account_data.get('account', account),
-                account_data.get('password', ''),
-                account_data.get('email', ''),
-                str(account_data.get('admin_level', '')),
-                account_data.get('admin_worlds', ''),
-                'true' if account_data.get('banned', False) else 'false',
-                'true' if account_data.get('guest', False) else 'false',
-                str(account_data.get('ban_time', 0)),
-                account_data.get('ban_reason', '')
-            ]))
-            payload = bytearray()
-            account_bytes = account.encode('latin-1')
-            payload.append(len(account_bytes) + 32)
-            payload.extend(account_bytes)
-            payload.extend(tokenized.encode('latin-1'))
-            cls.sendPacket(cls.RC_TO_SERVER["PLI_RC_ACCOUNTGET"], payload)
+            cls.sendAccount(account_data, is_new=False, fallback_account=account)
             cls.log("Updated account data for: " + account, debug_only=True)
+
+    @classmethod
+    def addAccount(cls, account_data):
+        if cls.authenticated:
+            cls.sendAccount(account_data, is_new=True)
+            cls.log("Added account: " + str(account_data.get('account', '')), debug_only=True)
+            return True
+        return False
+
+    @classmethod
+    def sendAccount(cls, account_data, is_new=False, fallback_account=""):
+        payload = bytearray()
+        account_name = str(account_data.get('account') or fallback_account or "")
+        payload.extend(writeRcLenString(account_name))
+        payload.extend(writeRcLenString(account_data.get('password', '')))
+        payload.extend(writeRcLenString(account_data.get('email', '')))
+        payload.append((1 if account_data.get('banned', False) else 0) + 32)
+        payload.append((1 if account_data.get('guest', False) else 0) + 32)
+        try:
+            admin_level = int(account_data.get('admin_level', 0) or 0)
+        except:
+            admin_level = 0
+        admin_level = max(0, min(0xdf, admin_level))
+        payload.append(admin_level + 32)
+        payload.extend(writeRcLenString(account_data.get('admin_worlds', '')))
+        payload.extend(writeRcLenString(account_data.get('ban_reason', '')))
+        opcode = cls.RC_TO_SERVER["PLI_RC_ACCOUNTADD"] if is_new else cls.RC_TO_SERVER["PLI_RC_ACCOUNTSET"]
+        cls.sendPacket(opcode, payload)
     @classmethod
     def uploadServerConfig(cls, config_type, content):
         if config_type == "folderconfig":
@@ -4578,6 +4693,23 @@ class GPlugin:
                         cmd = RcShowExplorerCommand(window)
                         cmd.editAccount({'account': account})
                 sublime.set_timeout(openEditor, 0)
+        elif packet_id == cls.SERVER_TO_RC["PLO_RC_ACCOUNTLISTGET"]:
+            accounts = []
+            offset = 0
+            while offset < len(payload):
+                try:
+                    account, offset = readRcLenString(payload, offset)
+                except:
+                    break
+                if account:
+                    accounts.append(account)
+            accounts.sort(key=lambda name: name.lower())
+            cls.account_list = accounts
+            cls.log("Received {} accounts".format(len(accounts)), debug_only=True)
+            if cls.account_list_callback:
+                callback = cls.account_list_callback
+                cls.account_list_callback = None
+                sublime.set_timeout(callback, 0)
         elif packet_id == cls.SERVER_TO_RC["PLO_RC_FOLDERCONFIGGET"]:
             tokenized = payload.decode('latin-1', errors='ignore')
             cls.folder_config = gtokenizeReverse(tokenized)
@@ -6609,6 +6741,68 @@ class RcNewClassCommand(sublime_plugin.WindowCommand):
             sublime.status_message("Created new class: " + class_name)
         self.window.show_input_panel("New Class Name:", "", onDone, None, None)
 
+class RcAccountsCommand(sublime_plugin.WindowCommand):
+    def run(self):
+        if not GPlugin.authenticated:
+            sublime.error_message("Not connected to server")
+            return
+        self.showAccounts()
+
+    def showAccounts(self):
+        items = ["Get Accounts", "Add Account"] + list(GPlugin.account_list)
+        def onDone(index):
+            if index == 0:
+                self.getAccounts()
+            elif index == 1:
+                self.addAccount()
+            elif index > 1:
+                account = GPlugin.account_list[index - 2]
+                RcShowExplorerCommand(self.window).editAccount({'account': account})
+        self.window.show_quick_panel(items, onDone)
+
+    def getAccounts(self):
+        def onAccount(account_filter):
+            def onConditions(conditions):
+                if GPlugin.requestAccountList(account_filter, conditions, self.showAccounts):
+                    sublime.status_message("Requesting accounts...")
+                else:
+                    sublime.error_message("Failed to request accounts")
+            self.window.show_input_panel("Conditions:", "", onConditions, None, None)
+        self.window.show_input_panel("Account name spec:", "", onAccount, None, None)
+
+    def addAccount(self):
+        data = {'admin_level': '0', 'admin_worlds': 'all', 'banned': False, 'guest': False, 'ban_reason': ''}
+        def askPassword(account):
+            if not account:
+                return
+            data['account'] = account
+            self.window.show_input_panel("Password:", "", askEmail, None, None)
+        def askEmail(password):
+            data['password'] = password
+            self.window.show_input_panel("E-mail address:", "", askAdminLevel, None, None)
+        def askAdminLevel(email):
+            data['email'] = email
+            self.window.show_input_panel("Admin level:", data['admin_level'], askAdminWorlds, None, None)
+        def askAdminWorlds(admin_level):
+            data['admin_level'] = admin_level or '0'
+            self.window.show_input_panel("Admin worlds:", data['admin_worlds'], askBanned, None, None)
+        def askBanned(admin_worlds):
+            data['admin_worlds'] = admin_worlds or 'all'
+            self.window.show_input_panel("Banned? (0/1):", "0", askGuest, None, None)
+        def askGuest(banned):
+            data['banned'] = str(banned).strip().lower() in ('1', 'true', 'yes', 'y')
+            self.window.show_input_panel("Guest? (0/1):", "0", askBanReason, None, None)
+        def askBanReason(guest):
+            data['guest'] = str(guest).strip().lower() in ('1', 'true', 'yes', 'y')
+            self.window.show_input_panel("Ban reason/comments:", "", finish, None, None)
+        def finish(ban_reason):
+            data['ban_reason'] = ban_reason
+            if GPlugin.addAccount(data):
+                sublime.status_message("Added account: " + data['account'])
+            else:
+                sublime.error_message("Failed to add account")
+        self.window.show_input_panel("Account name:", "", askPassword, None, None)
+
 class RcCreateNpcOnServerCommand(sublime_plugin.WindowCommand):
     def run(self):
         if not GPlugin.nc_authenticated:
@@ -7323,6 +7517,29 @@ def readLengthString(payload, offset):
     length, offset = readGByte(payload, offset)
     string = payload[offset:offset + length].decode('latin-1', errors='ignore')
     return string, offset + length
+
+def readRcLenString(payload, offset):
+    if offset >= len(payload):
+        return "", offset
+    marker = payload[offset]
+    offset += 1
+    if marker == 0xff:
+        length = min(0xdf, len(payload) - offset)
+    else:
+        length = max(0, marker - 32)
+    string = payload[offset:offset + length].decode('latin-1', errors='ignore')
+    return string, offset + length
+
+def writeRcLenString(text):
+    raw = str(text or "").encode('latin-1', errors='ignore')
+    payload = bytearray()
+    if len(raw) < 0xe0:
+        payload.append(len(raw) + 32)
+        payload.extend(raw)
+    else:
+        payload.append(0xff)
+        payload.extend(raw[:0xdf])
+    return payload
 
 def readCommaText(payload, offset, length=None):
     if length is None:
