@@ -762,7 +762,7 @@ class GPlugin:
     def _onConnected(cls, user_data):
         cls.authenticated = True
         cls.log("Authenticated to server", debug_only=True)
-        _grclib.rc_execute(cls.rc_handle, b'/npc sublimerc_grclib,2025.11.24')
+        _grclib.rc_execute(cls.rc_handle, b'/npc sublimerc_grclib,2026.06.13')
         nickname = getSetting("nickname", "")
         if nickname:
             _grclib.rc_set_nickname(cls.rc_handle, nickname.encode('latin-1'))
