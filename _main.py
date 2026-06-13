@@ -4021,7 +4021,7 @@ class GPlugin:
             cls.authenticated = True
             cls.switching_servers = False
             cls.shown_not_authenticated = False
-            cls.sendRcChat("/npc sublimerc_pystyle,5.2.2026")
+            cls.sendRcChat("/npc sublimerc_pystyle,2026.06.13")
             if not cls.has_set_nickname: cls.sendSetNickname()
             cls._requestServerList()
         elif packet_id == cls.SERVER_TO_RC["PLO_UNKNOWN190"]:
